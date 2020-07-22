@@ -51,3 +51,5 @@ int main()
 
 # Contact
 If you find any bugs, please contact me(ele7enxxh@gmail.com)
+
+maybe this http://ele7enxxh.com/Android-Arm-Inline-Hook.html post can read for some info.

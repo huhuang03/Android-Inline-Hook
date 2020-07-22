@@ -37,6 +37,7 @@ enum hook_status {
 	HOOKED,
 };
 
+// something about the hook.
 struct inlineHookItem {
 	uint32_t target_addr;
 	uint32_t new_addr;
@@ -51,6 +52,7 @@ struct inlineHookItem {
 	int mode;
 };
 
+// ok, this is a ds
 struct inlineHookInfo {
 	struct inlineHookItem item[1024];
 	int size;
@@ -253,10 +255,12 @@ enum ele7en_status registerInlineHook(uint32_t target_addr, uint32_t new_addr, u
 {
 	struct inlineHookItem *item;
 
+	// yes, check is in executable segment
 	if (!isExecutableAddr(target_addr) || !isExecutableAddr(new_addr)) {
 		return ELE7EN_ERROR_NOT_EXECUTABLE;
 	}
 
+	// find previous hooked address.
 	item = findInlineHookItem(target_addr);
 	if (item != NULL) {
 		if (item->status == REGISTERED) {
@@ -270,16 +274,23 @@ enum ele7en_status registerInlineHook(uint32_t target_addr, uint32_t new_addr, u
 		}
 	}
 
+	// new a hook item.
 	item = addInlineHookItem();
 
 	item->target_addr = target_addr;
 	item->new_addr = new_addr;
 	item->proto_addr = proto_addr;
 
+	// why diffrient syze?? thumb mode is diffrent size??
+	// and test0 is thumb or not??
+	// I think if the bit0 is 1, then is thumb, otherwise arm
 	item->length = TEST_BIT0(item->target_addr) ? 12 : 8;
 	item->orig_instructions = malloc(item->length);
+	// target is 1 but the real address is 0
 	memcpy(item->orig_instructions, (void *) CLEAR_BIT0(item->target_addr), item->length);
 
+	// why fd is 0??
+	// after read the MPA_ANONYMOUS doc, this is just create the page??
 	item->trampoline_instructions = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
 	relocateInstruction(item->target_addr, item->orig_instructions, item->length, item->trampoline_instructions, item->orig_boundaries, item->trampoline_boundaries, &item->count);
 

@@ -444,6 +444,16 @@ static int relocateInstructionInThumb32(uint32_t pc, uint16_t high_instruction, 
 	return offset;
 }
 
+// yes, this is the key function.
+// trampoline_instructions is a PAGE_SIZE memory allock by mmap
+// orig_boundaries
+// trampoline_boundaries
+// *size &item->count
+
+// int orig_boundaries[4];
+// int trampoline_boundaries[20];
+// jump to new location and than jump back??
+// maybe in later we will check how this done.
 static void relocateInstructionInThumb(uint32_t target_addr, uint16_t *orig_instructions, int length, uint16_t *trampoline_instructions, int *orig_boundaries, int *trampoline_boundaries, int *count)
 {
 	int orig_pos;
@@ -461,6 +471,8 @@ static void relocateInstructionInThumb(uint32_t target_addr, uint16_t *orig_inst
 		trampoline_boundaries[*count] = trampoline_pos * sizeof(uint16_t);
 		++(*count);
 		
+		// 没头脑的代码
+		//
 		if ((orig_instructions[orig_pos] >> 11) >= 0x1D && (orig_instructions[orig_pos] >> 11) <= 0x1F) {
 			if (orig_pos + 2 > length / sizeof(uint16_t)) {
 				break;
